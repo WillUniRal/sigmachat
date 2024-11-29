@@ -7,19 +7,25 @@ app = Flask(__name__)
 
 @app.route('/', methods = ['GET','POST'])
 def home():
+    error=""
     if request.method == 'POST' :
         user = request.form.get("user")
         password = request.form.get("password")
         print(user,password)
         with secrets() as credentials_table:
+            
             creds = credentials_table.getUserDetails(user) 
             password = password.encode()
-            hashed_password = bcrypt.hashpw(password, creds[3])
-            if hashed_password == creds[2] : print("successful login")
-            else: print("unsucessful login")
+            
+            if creds is not None and bcrypt.checkpw(password,creds[2]) :
+                print("successful login")
+                error = "This service is not available yet"
+            else: 
+                print("unsucessful login")
+                error = "The password or username was incorrect"
 
 
-    return render_template('home.html')
+    return render_template('home.html',error=error)
 
 import register
 

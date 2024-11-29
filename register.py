@@ -17,7 +17,7 @@ def register():
 
         with secrets() as credentials_table:
             credentials_table.create()
-            credentials_table.register(user,email,hashed_password,salt)
+            credentials_table.register(user,email,hashed_password)
         
         print(user,password, email)
         return redirect("/")

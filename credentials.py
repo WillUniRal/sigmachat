@@ -18,24 +18,22 @@ class secrets:
                 `email` VARCHAR(255) NULL,
                 `password` VARCHAR(32) NOT NULL,
                 `create_time` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-                `salt` VARCHAR(45) NOT NULL,
                 UNIQUE (`username`),
                 UNIQUE (`email`)
             )
         ''')
-    def register(self,user,email,password,salt):
+    def register(self,user,email,password):
         query = '''
             INSERT INTO `login credentials` (
                 `username`,
                 `email`, 
-                `password`, 
-                `salt`
-            ) VALUES (?, ?, ?, ?);
+                `password`
+            ) VALUES (?, ?, ?);
         '''
-        self.cursor.execute(query,(user,email,password,salt))
+        self.cursor.execute(query,(user,email,password))
     def getUserDetails(self,user):
         self.cursor.execute('''
-            SELECT `username`, `email`, `password`, `salt`
+            SELECT `username`, `email`, `password`
             FROM `login credentials`
             WHERE `username` = ?;
         ''', (user,))
