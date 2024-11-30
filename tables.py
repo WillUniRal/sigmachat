@@ -64,7 +64,7 @@ class sessions(table):
             );
         ''')
     def login(self,user):
-        sessionID = uuid.uuid4()
+        sessionID = str(uuid.uuid4())
         self.cursor.execute('''
             INSERT INTO `Sessions` (
                 `SessionID`,
