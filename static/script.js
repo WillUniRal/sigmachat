@@ -1,3 +1,10 @@
+path = window.location.pathname
+let id= 0
+if (path.includes('/msg')) {
+  const parts = path.split('/'); 
+  id = parseInt(parts[parts.length - 1], 10); // base 10 decimal
+}
+
 
 document.addEventListener('DOMContentLoaded', (event) => {
 
@@ -12,8 +19,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const chat = document.getElementById('chat')
     socket.on('message', function(msg) {
 
+      const data = JSON.parse(msg);
+
       let message = document.createElement("li")
-      let contents = document.createTextNode(msg)
+      let contents = document.createTextNode(data.username+": "+data.message)
       message.append(contents)
       chat.append(message)
 
@@ -32,7 +41,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
       
 
       let msg = document.getElementById('message').value;
-      let payload = JSON.stringify({ message: msg, session: getCookie("session") });
+      if(msg == "") return;
+      let payload = JSON.stringify({ message: msg, session: getCookie("session"),channelid: id });
       
       console.log(msg)
       socket.send(payload)

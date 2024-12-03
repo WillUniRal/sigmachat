@@ -13,6 +13,8 @@ def login():
         password = request.form.get("password")
         print(user,password)
         with credentials() as credentials_table:
+
+            credentials_table.create()
             
             creds = credentials_table.getUserDetails(user) 
             password = password.encode()
@@ -37,5 +39,5 @@ import register
 import home
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    app.run(host='0.0.0.0',port=80,debug=True) 
 
