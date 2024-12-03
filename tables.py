@@ -73,13 +73,16 @@ class sessions(table):
         ''',(sessionID,user))
         return sessionID
     def validate(self,sessionID,user):
+        result = self.getUser()
+        return  result is not None and user == result[0]
+    def getUser(self,sessionID):
         self.cursor.execute('''
             SELECT `username`
-            FROM `login credentials`
+            FROM `Sessions`
             WHERE `SessionID` = ?;
         ''', (sessionID,))
         result = self.cursor.fetchone()
-        return  result is not None and user == result[0]
+        return result
         
     
 
