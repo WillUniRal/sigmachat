@@ -12,8 +12,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     socket.on('connect', function() {
 
-        console.log('Connected to server');
-
+      console.log('Connected to server');
+      let json = JSON.stringify({ type: "connection", session: getCookie("session"),channelid: id });
+      socket.send(json)
     });
 
     const chat = document.getElementById('chat')
@@ -21,10 +22,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
       const data = JSON.parse(msg);
 
+      
       let message = document.createElement("li")
       let contents = document.createTextNode(data.username+": "+data.message)
       message.append(contents)
       chat.append(message)
+      
 
     });
 
@@ -42,10 +45,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
       let msg = document.getElementById('message').value;
       if(msg == "") return;
-      let payload = JSON.stringify({ message: msg, session: getCookie("session"),channelid: id });
+      let json = JSON.stringify({ type: "msg",message: msg, session: getCookie("session"),channelid: id });
       
-      console.log(msg)
-      socket.send(payload)
+      socket.send(json)
       document.getElementById('message').value = ""
 
     }
