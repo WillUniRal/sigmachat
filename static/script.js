@@ -24,7 +24,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
       
       let message = document.createElement("li")
-      let contents = document.createTextNode(data.username+": "+data.message)
+      let user = document.createElement("div")
+      let header = document.createElement("h3")
+      
+      header.append(document.createTextNode(data.username))
+      user.append(header)
+
+      let contents = document.createTextNode(data.message)
+      message.append(user)
       message.append(contents)
       chat.append(message)
       

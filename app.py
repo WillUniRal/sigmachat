@@ -93,5 +93,5 @@ class Server :
         return self.get_channel(id,left,right)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0',port=80,debug=True)
+    io.run(app,host='0.0.0.0',port=80,debug=True)
 

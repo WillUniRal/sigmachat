@@ -1,4 +1,26 @@
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+h3 {
+    margin: 0;
+}
 #chat {
     list-style-type: none;
     padding-left: 0;
+}
+#msg-box {
+    margin-top: auto;
+    padding: 10px;
+}
+#msg-box input,#msg-box button {
+   padding: 5px;
+   margin: 5px;
+}
+
+#messaging-container {
+    padding: 30px;
+    height: 100%;
+    
 }
