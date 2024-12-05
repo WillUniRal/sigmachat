@@ -58,6 +58,5 @@ def handle_message(msg):
     channel , __ = server.get_channel(channel)
 
     for members in channel.seats :
-        print(members)
         send(json.dumps(data),to=members.socket_session)
 

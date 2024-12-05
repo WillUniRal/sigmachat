@@ -12,7 +12,6 @@ def login():
     if request.method == 'POST' :
         user = request.form.get("user")
         password = request.form.get("password")
-        print(user,password)
         with credentials() as credentials_table:
 
             credentials_table.create()

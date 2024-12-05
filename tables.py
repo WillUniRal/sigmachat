@@ -1,5 +1,6 @@
 import sqlite3
 import uuid
+import random
 class table:
     def __init__(self):
         self.connection = sqlite3.connect("database.db")
@@ -83,6 +84,64 @@ class sessions(table):
         ''', (sessionID,))
         result = self.cursor.fetchone()
         return result
+class profile(table) :
+    def create(self) :
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS `Profile` (
+                `userID` INTEGER PRIMARY KEY, 
+                `username` TEXT NOT NULL,      
+                `bio` TEXT,
+                `status` TEXT,
+                `join_date` TIMESTAMP,
+                UNIQUE (`userID`),
+                
+                FOREIGN KEY (`username`) 
+                    REFERENCES `login credentials` (`username`)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE,
+                
+                FOREIGN KEY (`join_date`) 
+                    REFERENCES `login credentials` (`create_time`)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE
+            );
+        ''')
+    def generate_user_id(self):
+        return random.randint(10**14, 10**15 - 1)
+    def create_profile(self, username, bio, status):
+        self.cursor.execute('''
+            INSERT INTO `Profile` (
+                `userID`, 
+                `username`, 
+                `bio`, 
+                `status`, 
+                `join_date`
+            ) SELECT ?, username, ?, ?, create_time
+            FROM `login credentials`
+            WHERE username = ?;
+        ''', (self.generate_user_id(), bio, status, username))
+class messages(table):
+    def create(self):
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS `Messages` (
+                `messageID` INTEGER PRIMARY KEY AUTOINCREMENT, 
+                `userID` INTEGER NOT NULL, 
+                `message` TEXT NOT NULL,
+                `channelID` INTEGER NOT NULL, 
+                `create_time` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (`userID`)
+                    REFERENCES `Profile` (`userID`)
+            );
+        ''')
+    def add_message(self, user_id, message, channel_id):
+        self.cursor.execute('''
+            INSERT INTO `Messages` (
+                `userID`, 
+                `message`
+                `channelID`
+            ) VALUES (?, ?);
+        ''', (user_id, message, channel_id))
+
         
     
 
