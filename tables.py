@@ -25,7 +25,7 @@ class table:
 class credentials(table):
     def create(self):
         self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS `login credentials` (
+            CREATE TABLE IF NOT EXISTS `LoginCredentials` (
                 `username` VARCHAR(16) NOT NULL,
                 `email` VARCHAR(255) NULL,
                 `password` VARCHAR(32) NOT NULL,
@@ -36,7 +36,7 @@ class credentials(table):
         ''')
     def register(self,user,email,password):
         self.cursor.execute('''
-            INSERT INTO `login credentials` (
+            INSERT INTO `LoginCredentials` (
                 `username`,
                 `email`, 
                 `password`
@@ -45,7 +45,7 @@ class credentials(table):
     def getUserDetails(self,user):
         self.cursor.execute('''
             SELECT `username`, `email`, `password`
-            FROM `login credentials`
+            FROM `LoginCredentials`
             WHERE `username` = ?;
         ''', (user,))
         return self.cursor.fetchone()
@@ -59,7 +59,7 @@ class sessions(table):
                 `create_time` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE (`SessionID`),
                 FOREIGN KEY (`username`)
-                    REFERENCES `login credentials` (`username`)
+                    REFERENCES `LoginCredentials` (`username`)
                     ON DELETE CASCADE
                     ON UPDATE CASCADE
             );
@@ -96,19 +96,19 @@ class profile(table) :
                 UNIQUE (`userID`),
                 
                 FOREIGN KEY (`username`) 
-                    REFERENCES `login credentials` (`username`)
+                    REFERENCES `LoginCredentials` (`username`)
                     ON DELETE CASCADE
                     ON UPDATE CASCADE,
                 
                 FOREIGN KEY (`join_date`) 
-                    REFERENCES `login credentials` (`create_time`)
+                    REFERENCES `LoginCredentials` (`create_time`)
                     ON DELETE CASCADE
                     ON UPDATE CASCADE
             );
         ''')
     def generate_user_id(self):
         return random.randint(10**14, 10**15 - 1)
-    def create_profile(self, username, bio, status):
+    def create_profile(self, username, bio="I am a sigma chat user", status=""):
         self.cursor.execute('''
             INSERT INTO `Profile` (
                 `userID`, 
@@ -117,9 +117,26 @@ class profile(table) :
                 `status`, 
                 `join_date`
             ) SELECT ?, username, ?, ?, create_time
-            FROM `login credentials`
+            FROM `LoginCredentials`
             WHERE username = ?;
         ''', (self.generate_user_id(), bio, status, username))
+    def get_userid(self,username) :
+        self.cursor.execute('''
+            SELECT `userID`
+            FROM `Profile`
+            WHERE `username` = ?;
+        ''', (username,))
+        result = self.cursor.fetchone()[0]
+        return result
+    def get_username(self,userid) :
+        self.cursor.execute('''
+            SELECT `username`
+            FROM `Profile`
+            WHERE `userID` = ?;
+        ''', (userid,))
+        result = self.cursor.fetchone()
+        return result
+
 class messages(table):
     def create(self):
         self.cursor.execute('''
@@ -137,10 +154,31 @@ class messages(table):
         self.cursor.execute('''
             INSERT INTO `Messages` (
                 `userID`, 
-                `message`
+                `message`,
                 `channelID`
-            ) VALUES (?, ?);
+            ) VALUES (?, ?, ?);
         ''', (user_id, message, channel_id))
+        self.connection.commit()
+        return self.cursor.lastrowid
+    def get_messages(self,channel_id) :
+        self.cursor.execute('''
+            SELECT * 
+            FROM `Messages`
+            WHERE `channelID` = ?
+            ORDER BY `create_time` DESC
+            LIMIT 20;
+        ''', (channel_id,))
+        return self.cursor.fetchall()[::-1]
+    def get_messages_before(self,channel_id,msgID) :
+        self.cursor.execute('''
+            SELECT * 
+            FROM `Messages`
+            WHERE `channelID` = ? AND `messageID` < ?
+            ORDER BY `create_time` DESC
+            LIMIT 20;
+        ''', (channel_id, msgID))
+        return self.cursor.fetchall()[::-1]
+    
 
         
     

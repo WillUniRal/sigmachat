@@ -67,8 +67,6 @@ class Server :
         return channel
 
     def get_channel(self, id, left=None,right=None) :
-        
-        
 
         if not self.channels : return None, 0
         #binary search
