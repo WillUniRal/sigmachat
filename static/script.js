@@ -36,20 +36,41 @@ function mouseY(evt) {
 document.addEventListener('DOMContentLoaded', (event) => {
   const context = document.getElementById("rmenu");
   //right click menu
+  let selectedMSG = null;
+  let user = null;
   document.addEventListener('contextmenu', function(e) {
     e.preventDefault();
     if (e.target && e.target.closest('li')) {
-      var messageId = e.target.closest('li').getAttribute('message-id');
-      if (messageId == null) return;
-      console.log('Message ID:', messageId);
+      selectedMSG = e.target.closest('li').getAttribute('message-id');
+      if (selectedMSG == null) return;
+      user = e.target.closest('li').getAttribute('user-id');
     } else {
       context.className = "hide"
       return;
+    }
+    buttons = context.getElementsByTagName("li")
+    if(user == localStorage.getItem("userid")) {
+      buttons[0].className = ""
+      buttons[1].className = "hide"
+    } else {
+      buttons[0].className = "hide"
+      buttons[1].className = ""
     }
     context.className = "show";
     context.style.top = mouseY(e) + 'px';
     context.style.left = mouseX(e) + 'px';
   }, false);
+  context.addEventListener("click", function(e) {
+    if(e.target.closest('li').innerHTML == "Delete message") {
+      //do something
+    }
+    if(e.target.closest('li').innerHTML == "Add friend") {
+      //do something
+    }
+    if(e.target.closest('li').innerHTML == "Copy text") {
+      //do something
+    }
+  });
 
   document.addEventListener("click", function(e) {
     context.className = "hide"
@@ -66,7 +87,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const chat = document.getElementById('chat')
     socket.on('message', function(msg) {
-      const data = JSON.parse(msg);
+      if(Number.isInteger(msg)) {
+        localStorage.setItem("userid",msg);
+        return;
+      }
+      let data;
+      data = JSON.parse(msg);
   
       if (Array.isArray(data)) {
         data.forEach((messageData) => {
@@ -88,7 +114,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
       const contents = document.createTextNode(data.message);
       message.append(user);
       message.append(contents);
-      let lines = chat.getElementsByTagName("li")
+      let lines = chat.getElementsByTagName("li");
 
       if (data.before) {
         header.append(document.createTextNode(data.username));
@@ -100,7 +126,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
           if(userHead) prevusr = userHead.textContent;
         }
         if(prevusr == data.username) {
-          console.log("rm")
           let div = lines[0].querySelector("div");
           if (div) div.remove();
         }

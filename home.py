@@ -4,7 +4,7 @@ from tables import messages,profile
 import sqlite3 as mysql
 from flask import Flask, render_template, request, jsonify, make_response
 from flask_socketio import send
-from tables import sessions
+from tables import sessions, profile
 
 import json
 
@@ -39,10 +39,20 @@ def handle_message(msg):
     session = request.cookies["session"]
     channel = data["channelid"]
 
+    with sessions() as sessionTable :
+        try :
+            username = sessionTable.getUser(session)[0]
+        except TypeError:
+            return
+    
+    with profile() as client:
+        clientid = client.get_userid(username)
+
     if type == "connection" :
         newchannel : Channel = server.add_channel(channel)
         member = Member(request.sid)
         newchannel.add_member(member)
+        send(clientid)
         send_history(channel)
         return
     if type == "update" :
@@ -50,11 +60,7 @@ def handle_message(msg):
         return
 
     
-    with sessions() as sessionTable :
-        try :
-            username = sessionTable.getUser(session)[0]
-        except TypeError:
-            return
+    
         
     message = data["message"]
     with profile() as user:
