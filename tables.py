@@ -166,7 +166,7 @@ class messages(table):
             FROM `Messages`
             WHERE `channelID` = ?
             ORDER BY `create_time` DESC
-            LIMIT 20;
+            LIMIT 50;
         ''', (channel_id,))
         return self.cursor.fetchall()[::-1]
     def get_messages_before(self,channel_id,msgID) :

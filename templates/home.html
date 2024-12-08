@@ -6,6 +6,8 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> 
     </head>
     <body>
+        
+
         <div id="sidebar"></div>
         <div id="messaging-container">
             <ol id="chat">
@@ -15,6 +17,15 @@
                 <input type="text" id="message">
                 <button id="send">Send</button>
             </div>
+        </div>
+
+        <!-- initially hidden right-click menu -->
+        <div class="hide" id="rmenu">
+            <ol>
+                <li>Delete message</li>
+                <li>Add friend</li>
+                <li>Copy text</li>
+            <ol>
         </div>
     </body>
     </script>

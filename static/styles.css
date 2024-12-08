@@ -1,6 +1,15 @@
+:root {
+    --main-font: Arial, Helvetica, sans-serif;
+    --highlight-dark: rgba(16, 17, 22, 0.212);
+    --highlight-light: rgba(176, 183, 218, 0.212);
+    --dark-tone: rgb(25, 27, 34);
+    --mid-tone: rgb(36, 41, 51);
+    --light-tone: rgb(44, 56, 71);
+    --button-color: rgb(97, 119, 131)
+}
 body,html {
-    font-family: Arial, Helvetica, sans-serif;
-    background-color: rgb(44, 56, 71);
+    font-family: var(--main-font);
+    background-color: var(--light-tone);
     color: white;
     margin:0;
     padding:0;
@@ -9,7 +18,7 @@ body,html {
     box-sizing: border-box;
 }
 #sidebar {
-    background-color: rgb(25, 27, 34);
+    background-color: var(--dark-tone);
     width: 70px;
     height: 100%;
 }
@@ -22,20 +31,24 @@ body {
 h3 {
     margin: 0;
 }
-li {
-    padding: 5px;
+#chat li {
+    padding: 1px;
+    padding-left: 40px;
+}
+li div {
+    margin-top: 10px;
 }
 li:hover {
-    background-color: rgba(16, 17, 22, 0.212);
+    background-color: var(--highlight-dark);
     border-radius: 10px;
 }
-#chat {
+ol {
     
     list-style-type: none;
     padding-left: 0;
 }
 #msg-box {
-    background-color: rgb(36, 41, 51);
+    background-color: var(--mid-tone);
     display: flex;
     position: fixed;
     margin-top: auto;
@@ -48,17 +61,19 @@ li:hover {
     box-sizing: border-box;
 }
 #msg-box input {
+    font-family: var(--main-font);
     color: white;
     border-radius: 10px;
     padding: 10px;
     margin-right: 10px;
     flex:1;
-    background-color: rgb(44, 56, 71);
+    background-color: var(--light-tone);
     border-style: none;
 }
 #msg-box button {
+    font-family: var(--main-font);
     color: white;
-    background-color: rgb(97, 119, 131);
+    background-color: var(--button-color);
     padding: 5px;
     flex: 0;
     border-radius: 10px;
@@ -67,7 +82,7 @@ li:hover {
 #msg-box button:focus, #msg-box input:focus {
 
     outline-style: solid;
-    outline-width: 5px;
+    outline-width: 2px;
     outline-color: white;
 }
 
@@ -79,7 +94,7 @@ li:hover {
     bottom: 0;
     /* display: flex;
     flex-direction: column; */
-    padding: 30px;
+    /* padding: 30px; */
     padding-bottom: 50px;
     overflow: auto;
     max-height: 100%;
@@ -89,4 +104,29 @@ li:hover {
 }
 #messaging-container::-webkit-scrollbar {
     display: none;
-  }
+}
+
+.show {
+    z-index: 1000;
+    position: absolute;
+    background-color: var(--dark-tone);
+    border: 1px solid white;
+    border-radius: 10px;
+    padding: 8px;
+    display: block;
+    margin: 0;
+    list-style-type: none;
+    list-style: none;
+}
+.show ol{
+    margin: 0;
+}
+.show ol li:hover {
+    background-color: var(--highlight-light);
+}
+.show ol li {
+    padding: 5px;
+}
+.hide {
+display: none;
+}

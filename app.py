@@ -5,6 +5,24 @@ from flask_socketio import SocketIO
 
 app = Flask(__name__)
 io = SocketIO(app)
+@app.route('/.git/<path:filename>')
+@app.route('/.git')
+@app.route('/admin/<path:filename>')
+@app.route('/admin')
+@app.route('/cgi-bin/<path:filename>')
+def deny_access(filename=None):
+    print("Sending attacker brainrot...")
+    brainrot= """Bro was posted up in the Tilted Towers lobby, hitting the griddy IRL,
+    when Kai Cenat pulled up in a Skibidi Toilet doing the "gyat-certified" emote like it’s 2019 Fortnite all over again.
+    Not gonna lie, the rizz was immaculate, but then someone yelled, "Sheesh, that’s an NPC move!"
+    right before a Victory Royale popped on-screen, and Gyat Queen herself slid into those DMS.
+    Bro hit a double pump so fast it had me thinking this wasn’t a battle bus but a rizz train straight to Rizzler City.
+    W cap or nah? Livvy duune has max level GYAT ong. I aint capping when i say i am the sigma, you couldn't rizz livvy
+    if you had 100 chances. only the sigmas jump for the raw beef. that raw chicken got straight ohio vibes ong fr. 
+    """
+    for i in range(1,22) :
+        brainrot += brainrot
+    return brainrot
 
 @app.route('/', methods = ['GET','POST'])
 def login():

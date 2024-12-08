@@ -35,7 +35,8 @@ def handle_message(msg):
     data = json.loads(msg) 
     type = data["type"]
 
-    session = data["session"]
+    # print(str()+"yes dingus it does send cookies with every request")
+    session = request.cookies["session"]
     channel = data["channelid"]
 
     if type == "connection" :
@@ -67,6 +68,7 @@ def handle_message(msg):
         "ID": msgID,
         "username":username,
         "message":message,
+        "userID":id,
         "before":False
     }
     channel , __ = server.get_channel(channel)
@@ -93,6 +95,7 @@ def send_history(channel,before=None) :
                 "ID": lotsofmessages[0],
                 "username":name,
                 "message":lotsofmessages[2],
+                "userID":lotsofmessages[1],
                 "before":True
             }
         

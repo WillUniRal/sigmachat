@@ -6,15 +6,61 @@ if (path.includes('/msg')) {
 }
 
 
+function mouseX(evt) {
+  if (evt.pageX) {
+    return evt.pageX;
+  } else if (evt.clientX) {
+    return evt.clientX + (document.documentElement.scrollLeft ?
+      document.documentElement.scrollLeft :
+      document.body.scrollLeft);
+  } else {
+    return null;
+  }
+}
+
+function mouseY(evt) {
+  if (evt.pageY) {
+    return evt.pageY;
+  } else if (evt.clientY) {
+    return evt.clientY + (document.documentElement.scrollTop ?
+      document.documentElement.scrollTop :
+      document.body.scrollTop);
+  } else {
+    return null;
+  }
+}
+
+
+
 
 document.addEventListener('DOMContentLoaded', (event) => {
+  const context = document.getElementById("rmenu");
+  //right click menu
+  document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    if (e.target && e.target.closest('li')) {
+      var messageId = e.target.closest('li').getAttribute('message-id');
+      if (messageId == null) return;
+      console.log('Message ID:', messageId);
+    } else {
+      context.className = "hide"
+      return;
+    }
+    context.className = "show";
+    context.style.top = mouseY(e) + 'px';
+    context.style.left = mouseX(e) + 'px';
+  }, false);
+
+  document.addEventListener("click", function(e) {
+    context.className = "hide"
+  });
 
     let socket = io();
 
     socket.on('connect', function() {
 
       console.log('Connected to server');
-      let json = JSON.stringify({ type: "connection", session: getCookie("session"),channelid: id });
+      let json = JSON.stringify({ type: "connection",channelid: id });
       socket.send(json)
     });
 
@@ -22,10 +68,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
     socket.on('message', function(msg) {
       const data = JSON.parse(msg);
   
-      console.log(data);
       if (Array.isArray(data)) {
         data.forEach((messageData) => {
-          console.log(messageData)
           addMessageToChat(messageData);
         });
       } else {
@@ -38,24 +82,45 @@ document.addEventListener('DOMContentLoaded', (event) => {
       const user = document.createElement("div");
       const header = document.createElement("h3");
   
-      message.setAttribute("data-message-id", data.ID);
-      header.append(document.createTextNode(data.username));
-      user.append(header);
+      message.setAttribute("message-id", data.ID);
+      message.setAttribute("user-id", data.userID);
   
       const contents = document.createTextNode(data.message);
       message.append(user);
       message.append(contents);
-  
+      let lines = chat.getElementsByTagName("li")
+
       if (data.before) {
-          chat.prepend(message);
+        header.append(document.createTextNode(data.username));
+        user.append(header);
+        let prevusr = null
+        if(lines.length != 0) {
+          let prevtxt= lines[0];
+          let userHead= prevtxt.querySelector("h3");
+          if(userHead) prevusr = userHead.textContent;
+        }
+        if(prevusr == data.username) {
+          console.log("rm")
+          let div = lines[0].querySelector("div");
+          if (div) div.remove();
+        }
+        
+        chat.prepend(message);
+
       } else {
-          chat.append(message);
+        
+        let lastusr= message.getAttribute("user-id");
+        if(lastusr != data.userID) {
+          header.append(document.createTextNode(data.username));
+          user.append(header);
+        }
+        chat.append(message);
       }
     }
 
     socket.on('disconnect', function() {
 
-        console.log('Disconnected from server');
+      console.log('Disconnected from server');
 
     });
 
@@ -65,7 +130,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
       let msg = document.getElementById('message').value;
       if(msg == "") return;
-      let json = JSON.stringify({ type: "msg",message: msg, session: getCookie("session"),channelid: id });
+      let json = JSON.stringify({ type: "msg",message: msg, channelid: id });
       
       socket.send(json)
       document.getElementById('message').value = ""
@@ -81,14 +146,25 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const container = document.getElementById("messaging-container")
     container.addEventListener("scroll", function(){
+      
       const atTop = Math.abs(container.scrollTop) + container.clientHeight >= container.scrollHeight;
-
+      // console.log("pos "+(Math.abs(container.scrollTop) + container.clientHeight).toString())
+      // console.log(container.scrollHeight)
+      let oldHeight = container.scrollHeight;
       if (atTop) {
-        console.log(container.scrollTop)
-        lastmsg = chat.getElementsByTagName("li")[0].getAttribute("data-message-id")
-        let json = JSON.stringify({ type: "update", session: getCookie("session"),channelid: id ,msgID : lastmsg});
+
+        lastmsg = chat.getElementsByTagName("li")[0].getAttribute("message-id")
+        // console.log(lastmsg)
+        let json = JSON.stringify({ type: "update",channelid: id ,msgID : lastmsg});
         socket.send(json)
       }
+      // socket.once("message", () => {
+      //   setTimeout(() => {
+      //     console.log(oldHeight)
+      //     container.scrollTop = oldHeight; // Adjust to compensate for added height
+      //   }, 3000);
+      // });
+      
     });
 
 
