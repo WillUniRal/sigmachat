@@ -4,7 +4,7 @@ from tables import messages,profile
 import sqlite3 as mysql
 from flask import Flask, render_template, request, jsonify, make_response
 from flask_socketio import send
-from tables import sessions, profile
+from tables import sessions, profile, messages
 
 import json
 
@@ -37,16 +37,22 @@ def handle_message(msg):
 
     # print(str()+"yes dingus it does send cookies with every request")
     session = request.cookies["session"]
-    channel = data["channelid"]
 
     with sessions() as sessionTable :
         try :
             username = sessionTable.getUser(session)[0]
         except TypeError:
             return
-    
+
     with profile() as client:
         clientid = client.get_userid(username)
+
+    if type == "delete":
+        with messages() as msgTb :
+            msgTb.delete_msg(data["message"],clientid)
+        return
+    
+    channel = data["channelid"]
 
     if type == "connection" :
         newchannel : Channel = server.add_channel(channel)
@@ -58,8 +64,6 @@ def handle_message(msg):
     if type == "update" :
         send_history(channel,data["msgID"])
         return
-
-    
     
         
     message = data["message"]

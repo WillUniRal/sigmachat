@@ -38,12 +38,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
   //right click menu
   let selectedMSG = null;
   let user = null;
+  let msg = null;
+  
   document.addEventListener('contextmenu', function(e) {
+    msg = e.target.closest('li')
     e.preventDefault();
-    if (e.target && e.target.closest('li')) {
-      selectedMSG = e.target.closest('li').getAttribute('message-id');
+    if (e.target && msg) {
+      selectedMSG = msg.getAttribute('message-id');
       if (selectedMSG == null) return;
-      user = e.target.closest('li').getAttribute('user-id');
+      user = msg.getAttribute('user-id');
     } else {
       context.className = "hide"
       return;
@@ -62,13 +65,26 @@ document.addEventListener('DOMContentLoaded', (event) => {
   }, false);
   context.addEventListener("click", function(e) {
     if(e.target.closest('li').innerHTML == "Delete message") {
-      //do something
+      let json = JSON.stringify({ type: "delete",message: selectedMSG});
+      socket.send(json)
     }
     if(e.target.closest('li').innerHTML == "Add friend") {
-      //do something
+      let json = JSON.stringify({ type: "add",user: user});
+      socket.send(json)
     }
-    if(e.target.closest('li').innerHTML == "Copy text") {
-      //do something
+    if(e.target.closest('li').innerHTML == "Copy text" && navigator.clipboard) {
+      let divIndex = msg.innerHTML.indexOf("</div>");
+      let contentAfterDiv = msg.innerHTML
+      if (divIndex !== -1) {
+        contentAfterDiv = msg.innerHTML.substring(divIndex + 6);
+      }
+      navigator.clipboard.writeText(contentAfterDiv)
+        .then(() => {
+          console.log("Text copied to clipboard successfully!");
+        })
+        .catch((err) => {
+          console.error("Failed to copy text to clipboard: ", err);
+        });
     }
   });
 

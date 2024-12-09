@@ -178,6 +178,20 @@ class messages(table):
             LIMIT 20;
         ''', (channel_id, msgID))
         return self.cursor.fetchall()[::-1]
+    def get_who_sent(self,msg_id):
+        self.cursor.execute('''
+            SELECT `userID`
+            FROM `Messages`
+            WHERE `messageID` = ?;
+        ''', (msg_id,))
+        return self.cursor.fetchone()[0]
+    def delete_msg(self,msg_id,user_id) :
+        if self.get_who_sent(msg_id) != user_id : return
+        self.cursor.execute('''
+            DELETE 
+            FROM `Messages`
+            WHERE `messageID` = ?;
+        ''', (msg_id,))
     
 
         
