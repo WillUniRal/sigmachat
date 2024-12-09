@@ -42,6 +42,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   
   document.addEventListener('contextmenu', function(e) {
     msg = e.target.closest('li')
+    // console.log(msg.previousElementSibling)
     e.preventDefault();
     if (e.target && msg) {
       selectedMSG = msg.getAttribute('message-id');
@@ -66,6 +67,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
   context.addEventListener("click", function(e) {
     if(e.target.closest('li').innerHTML == "Delete message") {
       let json = JSON.stringify({ type: "delete",message: selectedMSG});
+      let thisID = msg.getAttribute("user-id")
+      let nextID = null
+      if(msg.nextElementSibling) {
+        nextID = msg.nextElementSibling.getAttribute("user-id") 
+      }
+      if(msg.querySelector("div") && thisID == nextID) {
+        msg.nextElementSibling.innerHTML = msg.innerHTML.substring(0,msg.innerHTML.indexOf("</div>")+6) + msg.nextElementSibling.innerHTML
+      }
+      msg.remove();
       socket.send(json)
     }
     if(e.target.closest('li').innerHTML == "Add friend") {
@@ -128,11 +138,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
       message.setAttribute("user-id", data.userID);
   
       const contents = document.createTextNode(data.message);
-      message.append(user);
-      message.append(contents);
+      
+      
       let lines = chat.getElementsByTagName("li");
 
       if (data.before) {
+        message.append(user);
         header.append(document.createTextNode(data.username));
         user.append(header);
         let prevusr = null
@@ -145,16 +156,18 @@ document.addEventListener('DOMContentLoaded', (event) => {
           let div = lines[0].querySelector("div");
           if (div) div.remove();
         }
-        
+        message.append(contents);
         chat.prepend(message);
 
       } else {
         
         let lastusr= message.getAttribute("user-id");
         if(lastusr != data.userID) {
+          message.append(user);
           header.append(document.createTextNode(data.username));
           user.append(header);
         }
+        message.append(contents);
         chat.append(message);
       }
     }

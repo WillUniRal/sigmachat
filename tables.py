@@ -192,7 +192,66 @@ class messages(table):
             FROM `Messages`
             WHERE `messageID` = ?;
         ''', (msg_id,))
+
+class friends(table) :
+    def create(self) :
+         self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS `Friends` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+                `user1` INTERGER NOT NULL,
+                `user2` INTERGER NOT NULL,
+                `friendship_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (`user1`) REFERENCES `Profile`(`userid`) ON DELETE CASCADE ON UPDATE CASCADE,
+                FOREIGN KEY (`user2`) REFERENCES `Profile`(`userid`) ON DELETE CASCADE ON UPDATE CASCADE,
+                CONSTRAINT `unique_friendship` UNIQUE (`user1`, `user2`)
+            );
+        ''')
+    def create_friendship(self, uid1,uid2):
+        try :
+            self.cursor.execute('''
+                INSERT INTO `Friends` (`user1`,`user2`)
+                VALUES (?, ?);              
+            ''',(uid1,uid2))
+        except sqlite3.IntegrityError as e :
+            print(e)
+    def get_friends(self, uid) :
+        self.cursor.execute('''
+                SELECT `user1` 
+                FROM `Friends`
+                WHERE `user2` = ?
+                UNION
+                SELECT `user2` 
+                FROM `Friends`
+                WHERE `user1` = ?;           
+            ''',(uid,uid))
+        return self.cursor.fetchall()
+class friend_requests(table) :
+    def create(self) :
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS `FriendRequests` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+                `sender` INTERGER NOT NULL,
+                `receiver` INTERGER NOT NULL,
+                `status` TEXT CHECK (`status` IN ('pending', 'accepted', 'rejected')) DEFAULT 'pending',
+                `request_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (`sender`) REFERENCES `Profile`(`userid`) ON DELETE CASCADE ON UPDATE CASCADE,
+                FOREIGN KEY (`receiver`) REFERENCES `Profile`(`userid`) ON DELETE CASCADE ON UPDATE CASCADE
+            );
+        ''')
+        # CONSTRAINT `unique_request` UNIQUE (`sender`, `receiver`)
+    def send_request(self, sender, receiver) :
+        try:
+            self.cursor.execute('''
+                INSERT INTO `FriendRequests` (`sender`, `receiver`)
+                VALUES (?, ?);
+            ''', (sender, receiver))
+            self.connection.commit()
+        except sqlite3.IntegrityError as e:
+            print(e)
     
+
+
+        
 
         
     
