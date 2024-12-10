@@ -30,9 +30,6 @@ function mouseY(evt) {
   }
 }
 
-
-
-
 document.addEventListener('DOMContentLoaded', (event) => {
   const context = document.getElementById("rmenu");
   //right click menu
@@ -66,17 +63,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
   }, false);
   context.addEventListener("click", function(e) {
     if(e.target.closest('li').innerHTML == "Delete message") {
-      let json = JSON.stringify({ type: "delete",message: selectedMSG});
-      let thisID = msg.getAttribute("user-id")
-      let nextID = null
-      if(msg.nextElementSibling) {
-        nextID = msg.nextElementSibling.getAttribute("user-id") 
-      }
-      if(msg.querySelector("div") && thisID == nextID) {
-        msg.nextElementSibling.innerHTML = msg.innerHTML.substring(0,msg.innerHTML.indexOf("</div>")+6) + msg.nextElementSibling.innerHTML
-      }
-      msg.remove();
+      let json = JSON.stringify({ type: "delete",message: selectedMSG,channelid: id});
       socket.send(json)
+      // delete_msg(msg)
     }
     if(e.target.closest('li').innerHTML == "Add friend") {
       let json = JSON.stringify({ type: "add",user: user});
@@ -97,6 +86,19 @@ document.addEventListener('DOMContentLoaded', (event) => {
         });
     }
   });
+
+  function delete_msg(msg) {
+    console.log(msg)
+    let thisID = msg.getAttribute("user-id")
+    let nextID = null
+    if(msg.nextElementSibling) {
+      nextID = msg.nextElementSibling.getAttribute("user-id") 
+    }
+    if(msg.querySelector("div") && thisID == nextID) {
+      msg.nextElementSibling.innerHTML = msg.innerHTML.substring(0,msg.innerHTML.indexOf("</div>")+6) + msg.nextElementSibling.innerHTML
+    }
+    msg.remove();
+  }
 
   document.addEventListener("click", function(e) {
     context.className = "hide"
@@ -119,6 +121,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
       }
       let data;
       data = JSON.parse(msg);
+      if(data.type && data.type == "delete") {
+        
+        delete_msg(binarySearch(chat.getElementsByTagName("li"),data.message))
+        return;
+      }
   
       if (Array.isArray(data)) {
         data.forEach((messageData) => {
@@ -160,9 +167,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
         chat.prepend(message);
 
       } else {
-        
-        let lastusr= message.getAttribute("user-id");
-        if(lastusr != data.userID) {
+        let lastusr = null;
+        try {
+        lastusr= lines[lines.length-1].getAttribute("user-id");
+        } catch {
+
+        }
+        console.log(lastusr+" "+data.userID)
+        if(lastusr != data.userID || lines.length == 0) {
           message.append(user);
           header.append(document.createTextNode(data.username));
           user.append(header);
@@ -243,3 +255,20 @@ function getCookie(cname) {
   }
   return "";
 }
+let binarySearch = function (arr, mesg, left=0, right=arr.length) {
+
+  if (left > right) return false;
+  let mid = Math.floor((left + right) / 2);
+  midvalue = arr[mid].getAttribute("message-id")
+  console.log(midvalue+" finding: "+mesg)
+  if (midvalue == mesg) return arr[mid];
+
+  if (midvalue > mesg)
+      return binarySearch(arr, mesg, left, mid - 1);
+  else
+      return binarySearch(arr, mesg, mid + 1, right);
+}
+
+// Driver code
+let arr = [1, 3, 5, 7, 8, 9];
+let x = 5;

@@ -47,10 +47,7 @@ def handle_message(msg):
     with profile() as client:
         clientid = client.get_userid(username)
 
-    if type == "delete":
-        with messages() as msgTb :
-            msgTb.delete_msg(data["message"],clientid)
-        return
+    
     
     channel = data["channelid"]
 
@@ -65,8 +62,20 @@ def handle_message(msg):
         send_history(channel,data["msgID"])
         return
     
-        
     message = data["message"]
+
+    if type == "delete":
+        with messages() as msgTb :
+            msgTb.delete_msg(message,clientid)
+        channel , __ = server.get_channel(channel)
+        data = {
+            "type": "delete",
+            "message": message
+        }
+        for members in channel.seats :
+            send(json.dumps(data),to=members.socket_session)
+        return
+    
     with profile() as user:
         id = user.get_userid(username)
 
@@ -84,7 +93,6 @@ def handle_message(msg):
     channel , __ = server.get_channel(channel)
     print(message)
     for members in channel.seats :
-        print(members.socket_session)
         send(json.dumps(data),to=members.socket_session)
 
 def send_history(channel,before=None) :
