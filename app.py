@@ -5,6 +5,12 @@ from flask_socketio import SocketIO
 
 app = Flask(__name__)
 io = SocketIO(app)
+
+@app.before_request
+def ipchecker() :
+    if request.remote_addr == "banned ip  here" : 
+        return deny_access()
+
 @app.route('/.git/<path:filename>')
 @app.route('/.git')
 @app.route('/admin/<path:filename>')
@@ -20,12 +26,11 @@ def deny_access(filename=None):
     W cap or nah? Livvy duune has max level GYAT ong. I aint capping when i say i am the sigma, you couldn't rizz livvy
     if you had 100 chances. only the sigmas jump for the raw beef. that raw chicken got straight ohio vibes ong fr. 
     """
-    for i in range(1,22) :
-        brainrot += brainrot
-    return brainrot
+    return brainrot*2**22
 
 @app.route('/', methods = ['GET','POST'])
 def login():
+
     error=""
     if request.method == 'POST' :
         user = request.form.get("user")
@@ -57,8 +62,9 @@ import register
 import home
 
 class Member :
-    def __init__(self,sesID):
+    def __init__(self,sesID,usrID):
         self.socket_session = sesID
+        self.user_id = usrID
 
 class Channel :
     def __init__(self, id):
@@ -70,6 +76,11 @@ class Channel :
     
     def remove_member(self, member : Member):
         self.seats.remove(member)
+    
+    def get_member(self, sid) :
+        for members in self.seats:
+            if members.socket_session == sid : return members
+
 
 class Server :
     def __init__(self):
@@ -83,6 +94,13 @@ class Server :
             channel = Channel(id)
             self.channels.insert(pos,channel)
         return channel
+    
+    def get_member_ses(self, userid) :
+        sessions = None
+        for channels in self.channels :
+            for index, seats in enumerate(channels.seats):
+                if seats.user_id == userid : 
+                    sessions.append(channels.seats[index])
 
     def get_channel(self, id, left=None,right=None) :
 
@@ -106,6 +124,8 @@ class Server :
         else : left = middle_index + 1
 
         return self.get_channel(id,left,right)
+
+
 
 if __name__ == '__main__':
     io.run(app,host='0.0.0.0',port=80,debug=True)

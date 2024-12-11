@@ -248,6 +248,12 @@ class friend_requests(table) :
             self.connection.commit()
         except sqlite3.IntegrityError as e:
             print(e)
+    def get_requests(self,user) :
+        self.cursor.execute('''
+            SELECT `sender`
+            FROM `FriendRequests`
+            WHERE `receiver` = ?;
+        ''', (user,))
     
 
 

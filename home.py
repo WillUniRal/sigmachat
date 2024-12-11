@@ -1,6 +1,6 @@
 from __main__ import app,io
 from app import Server,Channel,Member
-from tables import messages,profile
+from tables import messages,profile,friend_requests
 import sqlite3 as mysql
 from flask import Flask, render_template, request, jsonify, make_response
 from flask_socketio import send
@@ -24,13 +24,15 @@ def handle_connect():
     
 
 @io.on('disconnect')
-
 def handle_disconnect():
-
-    print(f'Client connected {request.sid}')
+    print(f'Client disconnected {request.sid}')
+    global server
+    for channels in server.channels :
+        for index, seats in enumerate(channels.seats):
+            if seats.socket_session == request.sid : 
+                del channels.seats[index]
 
 @io.on('message')
-
 def handle_message(msg):
     data = json.loads(msg) 
     type = data["type"]
@@ -48,12 +50,27 @@ def handle_message(msg):
         clientid = client.get_userid(username)
 
     
-    
+    if type == "add" :
+        reciever = data["user"]
+        with friend_requests() as rq :
+            rq.create()
+            rq.send_request(clientid,reciever)
+        reciever_sessions = server.get_member_ses(reciever)
+        if reciever_sessions :
+            data = {
+                "type": "add",
+                "userID": clientid
+            }
+            for sess in reciever_sessions :
+                send(data,to=sess)
+        return
+        
+
     channel = data["channelid"]
 
     if type == "connection" :
         newchannel : Channel = server.add_channel(channel)
-        member = Member(request.sid)
+        member = Member(request.sid,clientid)
         newchannel.add_member(member)
         send(clientid)
         send_history(channel)
