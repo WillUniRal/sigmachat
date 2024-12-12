@@ -21,5 +21,5 @@ Chat with everyone online, multiple channels, message saving, deleting and secur
 
 ## Screenshots
 
-![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here](https://github.com/WillUniRal/sigmachat/blob/main/app-screen-shot.png?raw=true))
+![App Screenshot](https://github.com/WillUniRal/sigmachat/blob/main/app-screen-shot.png?raw=true)
 
