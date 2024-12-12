@@ -3,7 +3,7 @@ import sqlite3 as mysql
 from flask import Flask, render_template, jsonify, request, redirect
 from tables import credentials,profile
 import bcrypt
-
+import re
 @app.route('/register', methods = ['GET','POST'])
 def register():
     error=""
@@ -12,6 +12,9 @@ def register():
         password = request.form.get("password")
         email = request.form.get("email")
 
+        if(re.search(r"[^A-Za-z_\-0-9]",user)) :
+            return render_template('register.html',error="Username contains unallowed characters")
+        
         password = password.encode()
         salt = bcrypt.gensalt()
         hashed_password = bcrypt.hashpw(password, salt)

@@ -5,6 +5,7 @@ import sqlite3 as mysql
 from flask import Flask, render_template, request, jsonify, make_response
 from flask_socketio import send
 from tables import sessions, profile, messages
+import re
 
 import json
 
@@ -40,16 +41,18 @@ def handle_message(msg):
     # print(str()+"yes dingus it does send cookies with every request")
     session = request.cookies["session"]
 
+    # GET THE SIGMA USER FROM OHIO TABLE
     with sessions() as sessionTable :
         try :
             username = sessionTable.getUser(session)[0]
         except TypeError:
             return
 
+    # SIGMA USER TURNS INTO NUMBA WOAAAH
     with profile() as client:
         clientid = client.get_userid(username)
 
-    
+    # THIS CODE DOES NOTHING
     if type == "add" :
         reciever = data["user"]
         with friend_requests() as rq :
@@ -82,6 +85,7 @@ def handle_message(msg):
     message = data["message"]
 
     if type == "delete":
+        # DELETES MESSSAGES FROM SQL TABLE EZ PZ
         with messages() as msgTb :
             msgTb.delete_msg(message,clientid)
         channel , __ = server.get_channel(channel)
@@ -96,10 +100,12 @@ def handle_message(msg):
     with profile() as user:
         id = user.get_userid(username)
 
+     # ----- THIS CODE ADDS MESSAGES TO TABLE XD ------
     with messages() as msgTable :
         msgTable.create()
         msgID = msgTable.add_message(id,message,channel)
 
+    # ----- SENDS TO ALLL MEMBERS IN A CHANNEL WOWWEEEE ------
     data = {
         "ID": msgID,
         "username":username,
@@ -108,19 +114,19 @@ def handle_message(msg):
         "before":False
     }
     channel , __ = server.get_channel(channel)
-    print(message)
     for members in channel.seats :
         send(json.dumps(data),to=members.socket_session)
 
 def send_history(channel,before=None) :
 
-    
     with messages() as msgTB :
         msgTB.create()
         if before is None :
             chat = msgTB.get_messages(channel)
         else :
             chat = msgTB.get_messages_before(channel,before)
+
+        # SENDS CHUNK OF MESSAGES TO THE CLIENT NO WAYYYYYY CC <<<<<< GYAT LEVEL 10 CERTIFIED COMMENT
 
         chunk = []
         for lotsofmessages in chat :
