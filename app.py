@@ -26,7 +26,7 @@ def deny_access(filename=None):
     W cap or nah? Livvy duune has max level GYAT ong. I aint capping when i say i am the sigma, you couldn't rizz livvy
     if you had 100 chances. only the sigmas jump for the raw beef. that raw chicken got straight ohio vibes ong fr. 
     """
-    return brainrot*2**22
+    return brainrot*2**20
 
 @app.route('/', methods = ['GET','POST'])
 def login():
